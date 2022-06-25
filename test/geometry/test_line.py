@@ -1,13 +1,11 @@
 from asyncio import base_tasks
-
 import pytest
 import torch
 from torch.autograd import gradcheck
 
-import kornia.testing as utils  # test utils
 from kornia.geometry.line import ParametrizedLine, fit_line
+import kornia.testing as utils  # test utils
 from kornia.testing import assert_close
-
 
 class TestParametrizedLine:
     def test_smoke(self, device, dtype):
@@ -56,11 +54,6 @@ class TestParametrizedLine:
         p3 = l1.projection(p2)
         assert_close(p3, p3_expected)
 
-    def test_gradcheck(self, device):
-        #pts = torch.rand(2, 3, 2, device=device, requires_grad=True, dtype=torch.float64)
-        #lines = torch.rand(2, 3, 3, device=device, requires_grad=True, dtype=torch.float64)
-        #assert gradcheck(kgl.point_line_distance, (pts, lines), raise_exception=True)
-        pass
 
 class TestFitLine:
     @pytest.mark.parametrize("B", (1, 2))
