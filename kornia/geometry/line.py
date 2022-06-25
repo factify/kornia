@@ -1,23 +1,21 @@
 # kornia.geometry.line module inspired by Eigen::geometry::ParametrizedLine
-from typing import Optional
-from typing import Union
+from typing import Optional, Union
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 
-from kornia.testing import KORNIA_CHECK_IS_TENSOR, KORNIA_CHECK_SHAPE, KORNIA_CHECK
-
+from kornia.testing import KORNIA_CHECK, KORNIA_CHECK_IS_TENSOR, KORNIA_CHECK_SHAPE
 
 __all__ = ["ParametrizedLine", "fit_line",]
 
 class ParametrizedLine(nn.Module):
     """Class that describes a parametrize line.
-    
+
     A parametrized line is defined by an origin point :math:`o` and a unit
     direction vector :math:`d` such that the line corresponds to the set
-    
+
     .. math::
 
         l(t) = o + t * d
@@ -37,7 +35,7 @@ class ParametrizedLine(nn.Module):
         super().__init__()
         self._origin = nn.Parameter(origin)
         self._direction = nn.Parameter(direction)
-    
+
     def __str__(self) -> str:
         return f"Origin: {self.origin}\nDirection: {self.direction}"
 
@@ -61,7 +59,7 @@ class ParametrizedLine(nn.Module):
         Args:
             p0: tensor with first point :math:`(B, D)`.
             p1: tensor with second point :math:`(B, D)`.
-        
+
         Example:
             >>> p0 = tensor([0.0, 0.0])
             >>> p1 = tensor([1.0, 1.0])
