@@ -10,10 +10,49 @@ from kornia.testing import assert_close
 class TestParametrizedLine:
     def test_smoke(self, device, dtype):
         p0 = torch.tensor([0.0, 0.0], device=device, dtype=dtype)
+        d0 = torch.tensor([1.0, 0.0], device=device, dtype=dtype)
+        l0 = ParametrizedLine(p0, d0)
+        assert_close(l0.origin, p0)
+        assert_close(l0.direction, d0)
+        assert_close(l0.dim(), 2)
+
+    def test_through(self, device, dtype):
+        p0 = torch.tensor([-1.0, -1.0], device=device, dtype=dtype)
+        p1 = torch.tensor([1.0, 1.0], device=device, dtype=dtype)
+        l1 = ParametrizedLine.through(p0, p1)
+        direction_expected = torch.tensor(
+            [0.7071, 0.7071], device=device, dtype=dtype)
+        assert_close(l1.origin, p0)
+        assert_close(l1.direction, direction_expected)
+
+    def test_point_at(self, device, dtype):
+        p0 = torch.tensor([0.0, 0.0], device=device, dtype=dtype)
         p1 = torch.tensor([1.0, 0.0], device=device, dtype=dtype)
         l1 = ParametrizedLine.through(p0, p1)
-        assert_close(l1.origin, p0)
-        assert_close(l1.direction, p1)
+        assert_close(l1.point_at(0.0),
+            torch.tensor([0.0, 0.0], device=device, dtype=dtype))
+        assert_close(l1.point_at(0.5),
+            torch.tensor([0.5, 0.0], device=device, dtype=dtype))
+        assert_close(l1.point_at(1.0),
+            torch.tensor([1.0, 0.0], device=device, dtype=dtype))
+
+    def test_projection1(self, device, dtype):
+        p0 = torch.tensor([0.0, 0.0], device=device, dtype=dtype)
+        p1 = torch.tensor([1.0, 0.0], device=device, dtype=dtype)
+        p2 = torch.tensor([0.5, 0.5], device=device, dtype=dtype)
+        p3_expected = torch.tensor([0.5, 0.0], device=device, dtype=dtype)
+        l1 = ParametrizedLine.through(p0, p1)
+        p3 = l1.projection(p2)
+        assert_close(p3, p3_expected)
+
+    def test_projection2(self, device, dtype):
+        p0 = torch.tensor([0.0, 0.0], device=device, dtype=dtype)
+        p1 = torch.tensor([0.0, 1.0], device=device, dtype=dtype)
+        p2 = torch.tensor([0.5, 0.5], device=device, dtype=dtype)
+        p3_expected = torch.tensor([0.0, 0.5], device=device, dtype=dtype)
+        l1 = ParametrizedLine.through(p0, p1)
+        p3 = l1.projection(p2)
+        assert_close(p3, p3_expected)
 
     def test_gradcheck(self, device):
         #pts = torch.rand(2, 3, 2, device=device, requires_grad=True, dtype=torch.float64)

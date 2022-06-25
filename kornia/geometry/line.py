@@ -54,6 +54,10 @@ class ParametrizedLine(nn.Module):
         """Return the line direction vector."""
         return self._direction
 
+    def dim(self) -> int:
+        """Return the dimension in the line holds."""
+        return len(self.direction)
+
     @classmethod
     def through(cls, p0, p1) -> "ParametrizedLine":
         """Constructs a parametrized line going from a point :math:`p0` to :math:`p1`.
@@ -85,6 +89,20 @@ class ParametrizedLine(nn.Module):
             >>> p2 = l.point_at(0.1)
         """
         return self.origin + self.direction * t
+
+    def projection(self, point: Tensor) -> Tensor:
+        """Return the projection of a point into the line."""
+        return self.origin + (self.direction @ (point - self.origin)) * self.direction
+
+
+
+    # TODO(edgar) implement the following:
+    # - squared_distance
+    # - square_norm
+    # - distance
+    # - intersection
+    # - intersection_parameter
+    # - intersection_point
 
 
 def fit_line(points: Tensor, weights: Optional[Tensor] = None) -> Tensor:
