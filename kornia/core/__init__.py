@@ -1,3 +1,3 @@
-from ._backend import Module, Tensor, concatenate, Parameter, normalize
+from ._backend import Module, Parameter, Tensor, concatenate, normalize
 
 __all__ = ["concatenate", "Module", "Tensor", "Parameter", "normalize"]

@@ -1,10 +1,10 @@
 # kornia.geometry.line module inspired by Eigen::geometry::ParametrizedLine
 from typing import Optional, Union
-from kornia.geometry.linalg import squared_norm
 
 import torch
-from kornia.core import Tensor, Module, Parameter, normalize
 
+from kornia.core import Module, Parameter, Tensor, normalize
+from kornia.geometry.linalg import squared_norm
 from kornia.testing import KORNIA_CHECK, KORNIA_CHECK_IS_TENSOR, KORNIA_CHECK_SHAPE
 
 __all__ = ["ParametrizedLine", "fit_line",]
@@ -96,13 +96,12 @@ class ParametrizedLine(Module):
 
         Args:
             point: the point to be projected.
-        
         """
         return self.origin + (self.direction @ (point - self.origin)) * self.direction
 
     def squared_distance(self, point: Tensor) -> Tensor:
         """Return the squared distance of a point to its projection onte the line.
-        
+
         Args:
             point: the point to calculate the distance onto the line.
         """
@@ -112,7 +111,7 @@ class ParametrizedLine(Module):
 
     def distance(self, point: Tensor) -> Tensor:
         """Return the distance of a point to its projections onto the line.
-        
+
         Args:
             point: the point to calculate hte distance into the line.
         """
