@@ -1,16 +1,15 @@
 # kornia.geometry.line module inspired by Eigen::geometry::ParametrizedLine
 from typing import Optional, Union
+from kornia.geometry.linalg import squared_norm
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch import Tensor
+from kornia.core import Tensor, Module, Parameter, normalize
 
 from kornia.testing import KORNIA_CHECK, KORNIA_CHECK_IS_TENSOR, KORNIA_CHECK_SHAPE
 
 __all__ = ["ParametrizedLine", "fit_line",]
 
-class ParametrizedLine(nn.Module):
+class ParametrizedLine(Module):
     """Class that describes a parametrize line.
 
     A parametrized line is defined by an origin point :math:`o` and a unit
@@ -33,8 +32,8 @@ class ParametrizedLine(nn.Module):
             >>> l = ParametrizedLine(o, d)
         """
         super().__init__()
-        self._origin = nn.Parameter(origin)
-        self._direction = nn.Parameter(direction)
+        self._origin = Parameter(origin)
+        self._direction = Parameter(direction)
 
     def __str__(self) -> str:
         return f"Origin: {self.origin}\nDirection: {self.direction}"
@@ -69,7 +68,11 @@ class ParametrizedLine(nn.Module):
             >>> p1 = tensor([1.0, 1.0])
             >>> l = ParametrizedLine.through(p0, p1)
         """
-        return ParametrizedLine(p0, F.normalize((p1 - p0), p=2, dim=-1))
+        return ParametrizedLine(p0, normalize((p1 - p0), p=2, dim=-1))
+
+    @classmethod
+    def from_hyperplane(cls, plane: "Hyperplane") -> "ParametrizedLine":
+        raise NotImplementedError
 
     def point_at(self, t: Union[float, Tensor]) -> Tensor:
         """The point at :math:`t` along this line.
@@ -89,15 +92,34 @@ class ParametrizedLine(nn.Module):
         return self.origin + self.direction * t
 
     def projection(self, point: Tensor) -> Tensor:
-        """Return the projection of a point into the line."""
+        """Return the projection of a point onto the line.
+
+        Args:
+            point: the point to be projected.
+        
+        """
         return self.origin + (self.direction @ (point - self.origin)) * self.direction
 
+    def squared_distance(self, point: Tensor) -> Tensor:
+        """Return the squared distance of a point to its projection onte the line.
+        
+        Args:
+            point: the point to calculate the distance onto the line.
+        """
+        diff: Tensor = point - self.origin
+        return squared_norm(torch.inner(diff - self.direction, diff) * self.direction)
+        #return squared_norm(((diff - self.direction) @ diff) * self.direction)
+
+    def distance(self, point: Tensor) -> Tensor:
+        """Return the distance of a point to its projections onto the line.
+        
+        Args:
+            point: the point to calculate hte distance into the line.
+        """
+        return self.squared_distance(point).sqrt()
 
 
     # TODO(edgar) implement the following:
-    # - squared_distance
-    # - square_norm
-    # - distance
     # - intersection
     # - intersection_parameter
     # - intersection_point

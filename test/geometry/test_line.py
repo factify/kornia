@@ -1,4 +1,3 @@
-from asyncio import base_tasks
 import pytest
 import torch
 from torch.autograd import gradcheck
@@ -54,6 +53,29 @@ class TestParametrizedLine:
         p3 = l1.projection(p2)
         assert_close(p3, p3_expected)
 
+    def test_projection(self, device, dtype):
+        p0 = torch.tensor([0.0, 0.0], device=device, dtype=dtype)
+        p1 = torch.tensor([1.0, 0.0], device=device, dtype=dtype)
+        l1 = ParametrizedLine.through(p0, p1)
+        point = torch.tensor([1.0, 2.0], device=device, dtype=dtype)
+        point_projection = torch.tensor([1.0, 0.0], device=device, dtype=dtype)
+        assert_close(l1.projection(point), point_projection)
+
+    def test_distance(self, device, dtype):
+        p0 = torch.tensor([0.0, 0.0], device=device, dtype=dtype)
+        p1 = torch.tensor([1.0, 0.0], device=device, dtype=dtype)
+        l1 = ParametrizedLine.through(p0, p1)
+        point = torch.tensor([1.0, 4.0], device=device, dtype=dtype)
+        distance_expected: float = 4.0
+        assert_close(l1.distance(point), distance_expected)
+
+    def test_squared_distance(self, device, dtype):
+        p0 = torch.tensor([0.0, 0.0], device=device, dtype=dtype)
+        p1 = torch.tensor([1.0, 0.0], device=device, dtype=dtype)
+        l1 = ParametrizedLine.through(p0, p1)
+        point = torch.tensor([1.0, 4.0], device=device, dtype=dtype)
+        distance_expected: float = 4.0
+        assert_close(l1.squared_distance(point), distance_expected ** 2)
 
 class TestFitLine:
     @pytest.mark.parametrize("B", (1, 2))
